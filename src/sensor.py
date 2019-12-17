@@ -1,8 +1,22 @@
 import RPi.GPIO as GPIO
 import time
+import os
 
 PHOTORESISTOR_PIN = 7
 MESURES_COUNT = 10
+
+# Read Temperature and humidity
+def readTandu(pin):
+    result = os.popen('cd ./lib/Adafruit_DHT/examples/ \n sudo ./AdafruitDHT.py 11 '+str(pin)).read()
+
+    x = result.split(';')
+
+    if(len(x)==2):
+        return({"success":True, "temperature":float(x[0]),"humidity":float(x[1]) })
+
+    else:
+        return({"success":False,"error":result})
+
 
 def rc_time ():
     count = 0
@@ -38,3 +52,4 @@ class Sensor:
 # Usage Example
 s = Sensor()
 s.readLightLevel()
+print(readTandu(21))

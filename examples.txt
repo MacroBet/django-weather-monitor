@@ -1,6 +1,8 @@
 # Sensor Reader usage Example
 s = Sensor()
 s.readLightLevel()
+print(readTandu(21))
+
 
 # Beeper usage Example
 b = Beeper()
