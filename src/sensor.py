@@ -1,24 +1,40 @@
 import RPi.GPIO as GPIO
 import time
-GPIO.setmode(GPIO.BOARD)
-#define the pin that goes to the circuit
-pin_to_circuit = 7
 
-def rc_time (pin_to_circuit):
+PHOTORESISTOR_PIN = 7
+MESURES_COUNT = 10
+
+def rc_time ():
     count = 0
   
     #Output on the pin for 
-    GPIO.setup(pin_to_circuit, GPIO.OUT)
-    GPIO.output(pin_to_circuit, GPIO.LOW)
+    GPIO.setup(PHOTORESISTOR_PIN, GPIO.OUT)
+    GPIO.output(PHOTORESISTOR_PIN, GPIO.LOW)
     time.sleep(0.01)
 
     #Change the pin back to input
-    GPIO.setup(pin_to_circuit, GPIO.IN)
+    GPIO.setup(PHOTORESISTOR_PIN, GPIO.IN)
   
     #Count until the pin goes high
-    while (GPIO.input(pin_to_circuit) == GPIO.LOW):
+    while (GPIO.input(PHOTORESISTOR_PIN) == GPIO.LOW):
         count += 1
-
+        
     return count
-for x in range(0, 5):
-    print(rc_time(pin_to_circuit))
+
+class Sensor:
+    def __init__(self):
+        GPIO.setmode(GPIO.BOARD)
+
+
+    def readLightLevel(self):
+        averageValue = 0
+        print("* start reading light level")
+        for x in range(0, MESURES_COUNT):
+            averageValue+= rc_time()
+        averageValue = averageValue/MESURES_COUNT
+        print("* reading completed, light level :"+str(averageValue))
+        return averageValue
+
+# Usage Example
+s = Sensor()
+s.readLightLevel()

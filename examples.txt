@@ -1,5 +1,3 @@
-# progetto-unifi
-
 # Sensor Reader usage Example
 s = Sensor()
 s.readLightLevel()
