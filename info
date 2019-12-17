@@ -1,3 +1,12 @@
+Event Manager ThreadstartedMain Started
+
+* start reading light level
+* reading completed, light level :13372.5
+* start reading temperature and humidity
+* reading completed, result :{'humidity': 63.0, 'temperature': 22.0, 'success': True}
+* photo taken: 17-12-2019_17:34.jpg
+
+
 PIP3 : 
 
 https://stackoverflow.com/questions/6587507/how-to-install-pip-with-python-3

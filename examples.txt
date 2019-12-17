@@ -14,9 +14,9 @@ b.makeBeep("green",3)
 b.makeBeep("white",10,.5,.3)
 
 # EventManager usage Example
-from led import Beeper
+from beeper import Beeper
 def beep():
     beeper = Beeper()
     beeper.makeBeep("white",3,0.4,.2)
-evm = EventManager()
+evm = EventManager(16)
 evm.registerButtonListener(beep)
