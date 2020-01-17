@@ -1,17 +1,51 @@
-#from mongo import Mongo
 from utils import Utils
 from pprint import pprint
 from beeper import Beeper
 from sensor import Sensor
+from saver import Saver
 from eventManager import EventManager
 import time
 import _thread
+import os
 
 import RPi.GPIO as GPIO
 
 pins= {"photoresistor" : 13, "tandu" : 21, "button" : 16,
       "red" : 26, "green" : 20, "white" : 19, }
 
+RELEASE = True
+START = True
+
+def automaticReadJob(timer, self):
+    if RELEASE :
+        self.beeper.makeBeep("white",18,0.5,.5,True)
+        time.sleep(18)
+    #_thread.start_new_thread( runServer,(self,self))
+ 
+
+
+    while True:
+        print("runnning")
+        try:
+            time.sleep(timer)
+            self.onButtonPress()
+        except:
+            print("something went wrong")
+    self.running = False
+
+def runServer(nulla,self):
+    while True:
+        self.beeper.makeBeep("red",3,0.2,.1)
+        self.beeper.makeBeep("green",3,0.2,.1)
+        self.beeper.makeBeep("red",2,0.2,.1)
+        time.sleep(5)
+
+        try:
+            #os.system('sh serverLauncher.sh')
+            os.system('cd /\ncd home/pi/progetto_unifi/ppm\npython3 manage.py runserver 192.168.43.8:8000')
+        except:
+            self.beeper.makeBeep("red",5,0.2,.1)
+        self.beeper.makeBeep("green",5,0.2,.1)
 def getMeasures(name, self):
     if(self.readingLock):
         self.errorBeeper.makeBeep("red",3,0.2,.1)
@@ -20,19 +54,33 @@ def getMeasures(name, self):
     beeper = self.beeper
     sensorReader = self.sensorReader
     beeper.turnOn("green")
-    sensorReader.readLightLevel()
+    brightness = sensorReader.readLightLevel()
     beeper.makeBeep("white",3,0.2,.1)
-    sensorReader.readTandu()
+    tandu = sensorReader.readTandu()
     beeper.makeBeep("white",3,0.2,.1)
     timeStamp = sensorReader.takePhoto()
     beeper.makeBeep("white",3,0.2,.1)
+
+    save='curl "http://192.168.43.8:8000/server/addone/?humidity='+str(tandu["humidity"])+'&brightness='+str(brightness)+'&temperature='+str(tandu["temperature"])+'&img_url='+timeStamp+'"'
+ 
+    result = os.popen(save).read()
+    print(result)
+    if result=="fatto":
+        beeper.makeBeep("white",3,0.2,.1)
+    else:
+        beeper.makeBeep("red",3,0.2,.1)
+
+
     beeper.turnOff("green")
     beeper.turnOn("white")
     self.readingLock = False
+
+    self.saver.add_measure(tandu["temperature"],tandu["humidity"],brightness,timeStamp)
+    
     self.kill()
 
 def main():
-    m=Mongo()
+    
     m.add_measure(20,74.6,12)
     #m.delete_all_measures() #BE CAREFUL WITH THAT
 
@@ -58,6 +106,7 @@ class Main:
         evm = EventManager(pins["button"])
         evm.registerButtonListener(self.onButtonPress)
         self.running = True
+        self.saver = Saver()
 
     def __del__(self):
         runBeeper.turnOff("white")
@@ -73,11 +122,15 @@ class Main:
         self.beeper.makeBeep("red",2,0.2,.1)
         self.beeper.makeBeep("green",2,0.2,.1)
         self.beeper.makeBeep("white",2,0.2,.1,True)
-        while self.running:
-            time.sleep(10)
+        timer = 60*60
+
+        _thread.start_new_thread( automaticReadJob, (timer,self))
+        time.sleep(3000000)
+        print("Main Completed")
+
         
 
-    
-main = Main()
-main.run()
+if START :     
+    main = Main()
+    main.run()
 

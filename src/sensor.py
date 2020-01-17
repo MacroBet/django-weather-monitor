@@ -55,7 +55,7 @@ class Sensor:
     def takePhoto(self):
         camera = PiCamera()
         timeStamp = Utils.getTimeStamp()
-        camera.capture('../images/'+timeStamp+'.jpg',"jpeg",False,None,0,False)
+        camera.capture('../ppm/server/static/server/images/plant/'+timeStamp+'.jpg',"jpeg",False,None,0,False)
         camera.close()
         print("* photo taken: "+timeStamp+".jpg")
         return timeStamp

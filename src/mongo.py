@@ -1,3 +1,4 @@
+import pymongo
 from pymongo import MongoClient
 from datetime import datetime
 
@@ -46,5 +47,4 @@ class Mongo:
         return meausures.find(query).sort("date",sort)
         
 
-
-
+print("helo")
